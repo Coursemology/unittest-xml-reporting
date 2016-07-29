@@ -105,6 +105,9 @@ class _TestInfo(object):
                     self.err, test_method)
         )
 
+        if hasattr(test_method, 'meta'):
+            self.meta = test_method.meta
+
         self.test_name = testcase_name(test_method)
         self.test_id = test_method.id()
         if subTest:
@@ -414,6 +417,15 @@ class _XMLTestResult(_TextTestResult):
             'name', _XMLTestResult._test_method_name(test_result.test_id)
         )
         testcase.setAttribute('time', '%.3f' % test_result.elapsed_time)
+
+        if hasattr(test_result, 'meta'):
+            meta = xml_document.createElement('meta')
+            testcase.appendChild(meta)
+            try:
+                for key, val in test_result.meta.items():
+                    meta.setAttribute(key, str(val))
+            except AttributeError as e:
+                print(e)
 
         if (test_result.outcome != test_result.SUCCESS):
             elem_name = ('failure', 'error', 'skipped')[test_result.outcome-1]
